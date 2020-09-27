@@ -5,10 +5,10 @@
   <!-- <a title="俄语" href="../ru/README.md">🇷🇺</a> -->
 </div>
 
- <div align="center"><a title="" href="https://github.com/ZJCV/TSN"><img align="center" src="./imgs/TSN.png"></a></div>
+ <div align="center"><a title="" href="https://github.com/ZJCV/Non-local"><img align="center" src="./imgs/Non-local.png"></a></div>
 
 <p align="center">
-  «TSN»复现了论文<a title="" href="https://arxiv.org/abs/1608.00859">Temporal Segment Networks</a>提出的视频分类模型
+  «Non-local»复现了论文<a title="" href="https://arxiv.org/abs/1711.079719">Non-local Neural Networks</a>提出的视频分类模型
 <br>
 <br>
   <a href="https://github.com/RichardLitt/standard-readme"><img src="https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square"></a>
@@ -31,7 +31,7 @@
 
 ## 背景
 
-[Temporal Segment Networks: Towards Good Practices for Deep Action Recognition](https://arxiv.org/abs/1608.00859)是视频分类任务中的经典实现
+受到传统图像处理算法`non-local means`影响，[Non-local Neural Networks](https://arxiv.org/abs/1608.00859)提出了注意力模块`Non-local Block`
 
 ## 安装
 
@@ -52,47 +52,18 @@ $ export CUDA_VISIBLE_DEVICES=1
 $ export PYTHONPATH=.
 ```
 
-* 训练
-
-```
-# 训练UCF101
-# 单GPU
-$ python tools/train.py --config_file=configs/tsn_resnet50_ucf101_rgb.yaml
-# 多GPU
-$ python tools/train.py \
---config_file=configs/tsn_resnet50_ucf101_rgb.yaml \
---eval_step=1000 \
---save_step=1000 \
--g=2
-```
-
-* 测试
-
-```
-# 单模态测试
-$ python tools/test.py <config_file> <pth_file>
-$ python tools/test.py configs/tsn_resnet50_ucf101_rgbdiff.yaml outputs/tsn_resnet50_ucf101_rgbdiff.pth
-# 多模态融合测试 - RGB + RGBDiff
-$ python tools/fusion.py <rgb_config_file> <rgb_pth_file> <rgbdiff_config_file> <rgbdiff_pth_file>
-$ python tools/fusion.py \
-configs/tsn_resnet50_ucf101_rgb.yaml \
-outputs/tsn_resnet50_ucf101_rgb.pth  \
-configs/tsn_resnet50_ucf101_rgbdiff.yaml \
-outputs/tsn_resnet50_ucf101_rgbdiff.pth
-```
-
 ## 主要维护人员
 
 * zhujian - *Initial work* - [zjykzj](https://github.com/zjykzj)
 
 ## 致谢
 
-* [yjxiong/tsn-pytorch](https://github.com/yjxiong/tsn-pytorch)
+* [ facebookresearch/SlowFast](https://github.com/facebookresearch/SlowFast)
 * [open-mmlab/mmaction2](https://github.com/open-mmlab/mmaction2)
 
 ## 参与贡献方式
 
-欢迎任何人的参与！打开[issue](https://github.com/zjykzj/TSN/issues)或提交合并请求。
+欢迎任何人的参与！打开[issue](https://github.com/ZJCV/Non-local/issues)或提交合并请求。
 
 注意:
 
