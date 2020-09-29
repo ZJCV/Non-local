@@ -123,6 +123,27 @@ class ResNet3d(nn.Module):
             self.add_module(layer_name, res_layer)
             self.res_layers.append(layer_name)
 
+        self.zero_init_residual = zero_init_residual
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv3d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            elif isinstance(m, (nn.BatchNorm3d, nn.GroupNorm)):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+
+        # Zero-initialize the last BN in each residual branch,
+        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
+        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
+        if self.zero_init_residual:
+            for m in self.modules():
+                if isinstance(m, Bottleneck3d):
+                    nn.init.constant_(m.bn3.weight, 0)
+                elif isinstance(m, BasicBlock3d):
+                    nn.init.constant_(m.bn2.weight, 0)
+
     def make_res_layer(self,
                        block,
                        planes,
