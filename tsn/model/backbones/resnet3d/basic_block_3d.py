@@ -43,12 +43,9 @@ class BasicBlock3d(nn.Module):
                  downsample=None,
                  inflate=True,
                  inflate_style='3x1x1',
-                 conv_layer=None,
                  norm_layer=None,
                  act_layer=None):
         super().__init__()
-        if conv_layer is None:
-            conv_layer = nn.Conv3d
         if norm_layer is None:
             norm_layer = nn.BatchNorm3d
         if act_layer is None:
@@ -61,7 +58,6 @@ class BasicBlock3d(nn.Module):
         self.dilation = dilation
         self.downsample = downsample
         self.inflate = inflate
-        self.conv_layer = conv_layer
         self.norm_layer = norm_layer
         self.act_layer = act_layer
 

@@ -25,8 +25,6 @@ class Bottleneck3d(nn.Module):
         inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines the
             kernel sizes and padding strides for conv1 and conv2 in each block.
             Default: '3x1x1'.
-        conv_layer (nn.Module): conv layer.
-            Default: None.
         norm_layer (nn.Module): norm layers.
             Default: None.
         act_layer (nn.Module): activation layer.
@@ -43,13 +41,10 @@ class Bottleneck3d(nn.Module):
                  downsample=None,
                  inflate=True,
                  inflate_style='3x1x1',
-                 conv_layer=None,
                  norm_layer=None,
                  act_layer=None):
         super().__init__()
         assert inflate_style in ['3x1x1', '3x3x3']
-        if conv_layer is None:
-            conv_layer = nn.Conv3d
         if norm_layer is None:
             norm_layer = nn.BatchNorm3d
         if act_layer is None:
@@ -62,7 +57,6 @@ class Bottleneck3d(nn.Module):
         self.dilation = dilation
         self.inflate = inflate
         self.inflate_style = inflate_style
-        self.conv_layer = conv_layer
         self.norm_layer = norm_layer
         self.act_layer = act_layer
 

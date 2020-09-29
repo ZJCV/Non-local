@@ -13,14 +13,24 @@ from .utility import convTxHxW, _triple, _quadruple
 from .basic_block_3d import BasicBlock3d
 from .bottleneck_3d import Bottleneck3d
 
+model_urls = {
+    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
+    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
+    'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
+    'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
+    'resnext50_32x4d': 'https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth',
+    'resnext101_32x8d': 'https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth',
+    'wide_resnet50_2': 'https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth',
+    'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
+}
+
 
 class ResNet3d(nn.Module):
     """ResNet 3d backbone.
 
     Args:
         depth (int): Depth of resnet, from {18, 34, 50, 101, 152}.
-        pretrained2d (bool): Whether to load pretrained 2D model.
-            Default: True.
         in_channels (int): Channel num of input features. Default: 3.
         spatial_strides (Sequence[int]):
             Spatial strides of residual blocks of each stage.
@@ -51,20 +61,21 @@ class ResNet3d(nn.Module):
         zero_init_residual (bool):
             Whether to use zero initialization for residual block,
             Default: True.
+        state_dict_2d (bool): pretrained 2D model.
+            Default: None.
         kwargs (dict, optional): Key arguments for "make_res_layer".
     """
 
     arch_settings = {
-        18: (BasicBlock3d, (2, 2, 2, 2)),
-        34: (BasicBlock3d, (3, 4, 6, 3)),
-        50: (Bottleneck3d, (3, 4, 6, 3)),
-        101: (Bottleneck3d, (3, 4, 23, 3)),
-        152: (Bottleneck3d, (3, 8, 36, 3))
+        "resnet18": (BasicBlock3d, (2, 2, 2, 2)),
+        "resnet34": (BasicBlock3d, (3, 4, 6, 3)),
+        "resnet50": (Bottleneck3d, (3, 4, 6, 3)),
+        "resnet101": (Bottleneck3d, (3, 4, 23, 3)),
+        "resnet152": (Bottleneck3d, (3, 8, 36, 3))
     }
 
     def __init__(self,
                  depth,
-                 pretrained2d=True,
                  in_channels=3,
                  spatial_strides=(1, 2, 2, 2),
                  temporal_strides=(1, 1, 1, 1),
@@ -75,10 +86,10 @@ class ResNet3d(nn.Module):
                  with_pool2=True,
                  inflates=(0, 0, 0, 0),
                  inflate_style='3x1x1',
-                 conv_layer=None,
                  norm_layer=None,
                  act_layer=None,
                  zero_init_residual=True,
+                 state_dict_2d=None,
                  **kwargs):
         super().__init__()
         assert len(spatial_strides) == len(temporal_strides) == len(dilations) == len(inflates) == 4
@@ -86,14 +97,11 @@ class ResNet3d(nn.Module):
 
         if depth not in self.arch_settings:
             raise KeyError(f'invalid depth {depth} for resnet')
-        if conv_layer is None:
-            conv_layer = nn.Conv3d
         if norm_layer is None:
             norm_layer = nn.BatchNorm3d
         if act_layer is None:
             act_layer = nn.ReLU
 
-        self.conv_layer = conv_layer
         self.norm_layer = norm_layer
         self.act_layer = act_layer
         self.with_pool2 = with_pool2
@@ -113,7 +121,6 @@ class ResNet3d(nn.Module):
                                             dilation=dilations[i],
                                             inflate=inflates[i],
                                             inflate_style=inflate_style,
-                                            conv_layer=self.conv_layer,
                                             norm_layer=self.norm_layer,
                                             act_layer=self.act_layer,
                                             **kwargs
@@ -124,9 +131,9 @@ class ResNet3d(nn.Module):
             self.res_layers.append(layer_name)
 
         self.zero_init_residual = zero_init_residual
-        self._init_weights()
+        self._init_weights(state_dict_2d)
 
-    def _init_weights(self):
+    def _init_weights(self, state_dict_2d):
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -143,6 +150,75 @@ class ResNet3d(nn.Module):
                     nn.init.constant_(m.bn3.weight, 0)
                 elif isinstance(m, BasicBlock3d):
                     nn.init.constant_(m.bn2.weight, 0)
+
+        if state_dict_2d:
+
+            def _inflate_conv_params(conv3d, state_dict_2d, module_name_2d,
+                                     inflated_param_names):
+                """Inflate a conv module from 2d to 3d.
+
+                Args:
+                    conv3d (nn.Module): The destination conv3d module.
+                    state_dict_2d (OrderedDict): The state dict of pretrained 2d model.
+                    module_name_2d (str): The name of corresponding conv module in the
+                        2d model.
+                    inflated_param_names (list[str]): List of parameters that have been
+                        inflated.
+                """
+                weight_2d_name = module_name_2d + '.weight'
+
+                conv2d_weight = state_dict_2d[weight_2d_name]
+                kernel_t = conv3d.weight.data.shape[2]
+
+                new_weight = conv2d_weight.data.unsqueeze(2).expand_as(
+                    conv3d.weight) / kernel_t
+                conv3d.weight.data.copy_(new_weight)
+                inflated_param_names.append(weight_2d_name)
+
+                if getattr(conv3d, 'bias') is not None:
+                    bias_2d_name = module_name_2d + '.bias'
+                    conv3d.bias.data.copy_(state_dict_2d[bias_2d_name])
+                    inflated_param_names.append(bias_2d_name)
+
+            def _inflate_bn_params(bn3d, state_dict_2d, module_name_2d,
+                                   inflated_param_names):
+                """Inflate a norm module from 2d to 3d.
+
+                Args:
+                    bn3d (nn.Module): The destination bn3d module.
+                    state_dict_2d (OrderedDict): The state dict of pretrained 2d model.
+                    module_name_2d (str): The name of corresponding bn module in the
+                        2d model.
+                    inflated_param_names (list[str]): List of parameters that have been
+                        inflated.
+                """
+                for param_name, param in bn3d.named_parameters():
+                    param_2d_name = f'{module_name_2d}.{param_name}'
+                    param_2d = state_dict_2d[param_2d_name]
+                    param.data.copy_(param_2d)
+                    inflated_param_names.append(param_2d_name)
+
+                for param_name, param in bn3d.named_buffers():
+                    param_2d_name = f'{module_name_2d}.{param_name}'
+                    # some buffers like num_batches_tracked may not exist in old
+                    # checkpoints
+                    if param_2d_name in state_dict_2d:
+                        param_2d = state_dict_2d[param_2d_name]
+                        param.data.copy_(param_2d)
+                        inflated_param_names.append(param_2d_name)
+
+            inflated_param_names = []
+            for name, module in self.named_modules():
+                if isinstance(module, nn.Conv3d):
+                    _inflate_conv_params(module, state_dict_2d, name, inflated_param_names)
+                if isinstance(module, type(self.norm_layer)):
+                    _inflate_bn_params(module, state_dict_2d, name, inflated_param_names)
+
+            # check if any parameters in the 2d checkpoint are not loaded
+            remaining_names = set(
+                state_dict_2d.keys()) - set(inflated_param_names)
+            if remaining_names:
+                print(f'These parameters in the 2d checkpoint are not loaded: {remaining_names}')
 
     def make_res_layer(self,
                        block,
@@ -174,8 +250,6 @@ class ResNet3d(nn.Module):
             inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines
                 the kernel sizes and padding strides for conv1 and conv2
                 in each block. Default: '3x1x1'.
-            conv_layer (nn.Module): conv layer.
-                Default: None.
             norm_layer (nn.Module): norm layers.
                 Default: None.
             act_layer (nn.Module): activation layer.
@@ -211,7 +285,6 @@ class ResNet3d(nn.Module):
                 inflate=(inflate[0] == 1),
                 inflate_style=inflate_style,
                 norm_layer=norm_layer,
-                conv_layer=conv_layer,
                 act_layer=act_layer,
                 **kwargs))
         self.inplanes = planes * block.expansion
@@ -226,7 +299,6 @@ class ResNet3d(nn.Module):
                     inflate=(inflate[i] == 1),
                     inflate_style=inflate_style,
                     norm_layer=norm_layer,
-                    conv_layer=conv_layer,
                     act_layer=act_layer,
                     **kwargs))
 
