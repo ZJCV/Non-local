@@ -84,26 +84,26 @@ def _resnet(arch, type, pretrained2d=False, **kwargs):
     return model
 
 
-@registry.BACKBONE.register('resnet18')
+@registry.BACKBONE.register('resnet3d_18')
 def resnet3d_18(type='C2D', pretrained=False, **kwargs):
     return _resnet("resnet18", type, pretrained2d=pretrained, **kwargs)
 
 
-@registry.BACKBONE.register('resnet34')
+@registry.BACKBONE.register('resnet3d_34')
 def resnet3d_34(type='C2D', pretrained=False, **kwargs):
     return _resnet("resnet34", type, pretrained2d=pretrained, **kwargs)
 
 
-@registry.BACKBONE.register('resnet50')
+@registry.BACKBONE.register('resnet3d_50')
 def resnet3d_50(type='C2D', pretrained=False, progress=True, **kwargs):
     return _resnet("resnet50", type, pretrained2d=pretrained, **kwargs)
 
 
-@registry.BACKBONE.register('resnet101')
+@registry.BACKBONE.register('resnet3d_101')
 def resnet3d_101(type='C2D', pretrained=False, **kwargs):
     return _resnet("resnet101", type, pretrained2d=pretrained, **kwargs)
 
 
-@registry.BACKBONE.register('resnet152')
+@registry.BACKBONE.register('resnet3d_152')
 def resnet3d_152(type='C2D', pretrained=False, **kwargs):
     return _resnet("resnet152", type, pretrained2d=pretrained, **kwargs)
