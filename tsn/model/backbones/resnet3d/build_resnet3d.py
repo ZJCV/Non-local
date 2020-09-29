@@ -28,61 +28,86 @@ model_urls = {
 }
 
 
-def _resnet(arch, pretrained2d=False, **kwargs):
-    model = ResNet3d(arch, pretrained2d=pretrained2d, **kwargs)
+def _resnet(arch, type, pretrained2d=False, **kwargs):
+    if type == 'C2D':
+        model = ResNet3d(arch,
+                         pretrained2d=pretrained2d,
+                         in_channels=3,
+                         spatial_strides=(1, 2, 2, 2),
+                         temporal_strides=(1, 1, 1, 1),
+                         dilations=(1, 1, 1, 1),
+                         conv1_kernel=(1, 7, 7),
+                         conv1_stride_t=2,
+                         pool1_stride_t=2,
+                         with_pool2=True,
+                         inflates=(0, 0, 0, 0),
+                         inflate_style='3x1x1',
+                         conv_layer=None,
+                         norm_layer=None,
+                         act_layer=None,
+                         zero_init_residual=True,
+                         **kwargs)
+    elif type == 'I3D_3x3x3':
+        model = ResNet3d(arch,
+                         pretrained2d=pretrained2d,
+                         in_channels=3,
+                         spatial_strides=(1, 2, 2, 2),
+                         temporal_strides=(1, 1, 1, 1),
+                         dilations=(1, 1, 1, 1),
+                         conv1_kernel=(5, 7, 7),
+                         conv1_stride_t=2,
+                         pool1_stride_t=2,
+                         with_pool2=True,
+                         inflates=(1, 1, 1, 1),
+                         inflate_style='3x3x3',
+                         conv_layer=None,
+                         norm_layer=None,
+                         act_layer=None,
+                         zero_init_residual=True,
+                         **kwargs)
+    elif type == 'I3D_3x1x1':
+        model = ResNet3d(arch,
+                         pretrained2d=pretrained2d,
+                         in_channels=3,
+                         spatial_strides=(1, 2, 2, 2),
+                         temporal_strides=(1, 1, 1, 1),
+                         dilations=(1, 1, 1, 1),
+                         conv1_kernel=(5, 7, 7),
+                         conv1_stride_t=2,
+                         pool1_stride_t=2,
+                         with_pool2=True,
+                         inflates=(1, 1, 1, 1),
+                         inflate_style='3x1x1',
+                         conv_layer=None,
+                         norm_layer=None,
+                         act_layer=None,
+                         zero_init_residual=True,
+                         **kwargs)
+    else:
+        raise ValueError('no matching type')
     return model
 
 
 @registry.BACKBONE.register('resnet18')
-def resnet3d_18(pretrained=False, progress=True, **kwargs):
-    r"""ResNet-18 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    return _resnet(18, pretrained2d=pretrained, **kwargs)
+def resnet3d_18(type='C2D', pretrained=False, **kwargs):
+    return _resnet(18, type, pretrained2d=pretrained, **kwargs)
 
 
 @registry.BACKBONE.register('resnet34')
-def resnet3d_34(pretrained=False, **kwargs):
-    r"""ResNet-34 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    return _resnet('34', pretrained2d=pretrained, **kwargs)
+def resnet3d_34(type='C2D', pretrained=False, **kwargs):
+    return _resnet(34, type, pretrained2d=pretrained, **kwargs)
 
 
 @registry.BACKBONE.register('resnet50')
-def resnet3d_50(pretrained=False, progress=True, **kwargs):
-    r"""ResNet-50 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    return _resnet(50, pretrained2d=pretrained, **kwargs)
+def resnet3d_50(type='C2D', pretrained=False, progress=True, **kwargs):
+    return _resnet(50, type, pretrained2d=pretrained, **kwargs)
 
 
 @registry.BACKBONE.register('resnet101')
-def resnet3d_101(pretrained=False, progress=True, **kwargs):
-    r"""ResNet-101 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    return _resnet(101, pretrained2d=pretrained, **kwargs)
+def resnet3d_101(type='C2D', pretrained=False, **kwargs):
+    return _resnet(101, type, pretrained2d=pretrained, **kwargs)
 
 
 @registry.BACKBONE.register('resnet152')
-def resnet3d_152(pretrained=False, progress=True, **kwargs):
-    r"""ResNet-152 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    return _resnet(152, pretrained2d=pretrained, **kwargs)
+def resnet3d_152(type='C2D', pretrained=False, **kwargs):
+    return _resnet(152, type, pretrained2d=pretrained, **kwargs)

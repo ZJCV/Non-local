@@ -2,7 +2,7 @@
 
 """
 @date: 2020/9/25 下午1:56
-@file: build_resnet.py
+@file: build_resnet3d.py
 @author: zj
 @description: 
 """
