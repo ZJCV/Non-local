@@ -8,22 +8,11 @@
 """
 
 import torch.nn as nn
+from torch.nn.modules.module import T
 
 from .utility import convTxHxW, _triple, _quadruple
 from .basic_block_3d import BasicBlock3d
 from .bottleneck_3d import Bottleneck3d
-
-model_urls = {
-    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
-    'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
-    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
-    'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
-    'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
-    'resnext50_32x4d': 'https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth',
-    'resnext101_32x8d': 'https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth',
-    'wide_resnet50_2': 'https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth',
-    'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
-}
 
 
 class ResNet3d(nn.Module):
@@ -52,8 +41,6 @@ class ResNet3d(nn.Module):
         inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines the
             kernel sizes and padding strides for conv1 and conv2 in each block.
             Default: '3x1x1'.
-        conv_layer (nn.Module): conv layer.
-            Default: None.
         norm_layer (nn.Module): norm layers.
             Default: None.
         act_layer (nn.Module): activation layer.
@@ -63,6 +50,8 @@ class ResNet3d(nn.Module):
             Default: True.
         state_dict_2d (bool): pretrained 2D model.
             Default: None.
+        partial_bn (bool): freezing all bn except the first
+            Default: False
         kwargs (dict, optional): Key arguments for "make_res_layer".
     """
 
@@ -90,6 +79,7 @@ class ResNet3d(nn.Module):
                  act_layer=None,
                  zero_init_residual=True,
                  state_dict_2d=None,
+                 partial_bn=False,
                  **kwargs):
         super().__init__()
         assert len(spatial_strides) == len(temporal_strides) == len(dilations) == len(inflates) == 4
@@ -132,6 +122,8 @@ class ResNet3d(nn.Module):
 
         self.zero_init_residual = zero_init_residual
         self._init_weights(state_dict_2d)
+
+        self.partial_bn = partial_bn
 
     def _init_weights(self, state_dict_2d):
         for m in self.modules():
@@ -231,7 +223,6 @@ class ResNet3d(nn.Module):
                        inflate_style='3x1x1',
                        norm_layer=None,
                        act_layer=None,
-                       conv_layer=None,
                        **kwargs):
         """Build residual layer for ResNet3D.
 
@@ -325,6 +316,27 @@ class ResNet3d(nn.Module):
             padding=(0, 1, 1))
 
         self.pool2 = nn.MaxPool3d(kernel_size=(2, 1, 1), stride=(2, 1, 1))
+
+    def freezing_bn(self):
+        count = 0
+        for m in self.modules():
+            if isinstance(m, type(self.norm_layer)):
+                count += 1
+                if count == 1:
+                    continue
+
+                m.eval()
+                # shutdown update in frozen mode
+                m.weight.requires_grad = False
+                m.bias.requires_grad = False
+
+    def train(self: T, mode: bool = True) -> T:
+        super(ResNet3d, self).train(mode=mode)
+
+        if mode and self.partial_bn:
+            self.freezing_bn()
+
+        return self
 
     def forward(self, x):
         """Defines the computation performed at every call.
