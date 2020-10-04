@@ -47,50 +47,19 @@ def _resnet(arch, cfg, map_location=None):
     with_pool2 = cfg.MODEL.BACKBONE.WITH_POOL2
     inflates = cfg.MODEL.BACKBONE.INFLATES
     inflate_style = cfg.MODEL.BACKBONE.INFLATE_STYLE
-    if type == 'C2D':
-        model = ResNet3d(arch,
-                         in_channels=in_channels,
-                         spatial_strides=spatial_strides,
-                         temporal_strides=temporal_strides,
-                         dilations=dilations,
-                         conv1_kernel=conv1_kernel,
-                         conv1_stride_t=conv1_stride_t,
-                         pool1_stride_t=pool1_stride_t,
-                         with_pool2=with_pool2,
-                         inflates=inflates,
-                         inflate_style=inflate_style,
-                         zero_init_residual=True,
-                         state_dict_2d=state_dict_2d)
-    elif type == 'I3D_3x3x3':
-        model = ResNet3d(arch,
-                         in_channels=3,
-                         spatial_strides=(1, 2, 2, 2),
-                         temporal_strides=(1, 1, 1, 1),
-                         dilations=(1, 1, 1, 1),
-                         conv1_kernel=(5, 7, 7),
-                         conv1_stride_t=2,
-                         pool1_stride_t=2,
-                         with_pool2=True,
-                         inflates=(1, 1, 1, 1),
-                         inflate_style='3x3x3',
-                         zero_init_residual=True,
-                         state_dict_2d=state_dict_2d)
-    elif type == 'I3D_3x1x1':
-        model = ResNet3d(arch,
-                         in_channels=3,
-                         spatial_strides=(1, 2, 2, 2),
-                         temporal_strides=(1, 1, 1, 1),
-                         dilations=(1, 1, 1, 1),
-                         conv1_kernel=(5, 7, 7),
-                         conv1_stride_t=2,
-                         pool1_stride_t=2,
-                         with_pool2=True,
-                         inflates=(1, 1, 1, 1),
-                         inflate_style='3x1x1',
-                         zero_init_residual=True,
-                         state_dict_2d=state_dict_2d)
-    else:
-        raise ValueError('no matching type')
+    model = ResNet3d(arch,
+                     in_channels=in_channels,
+                     spatial_strides=spatial_strides,
+                     temporal_strides=temporal_strides,
+                     dilations=dilations,
+                     conv1_kernel=conv1_kernel,
+                     conv1_stride_t=conv1_stride_t,
+                     pool1_stride_t=pool1_stride_t,
+                     with_pool2=with_pool2,
+                     inflates=inflates,
+                     inflate_style=inflate_style,
+                     zero_init_residual=True,
+                     state_dict_2d=state_dict_2d)
     return model
 
 
