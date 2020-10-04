@@ -28,27 +28,39 @@ model_urls = {
 }
 
 
-def _resnet(arch, type, pretrained2d=False, **kwargs):
+def _resnet(arch, cfg, map_location=None):
+    pretrained2d = cfg.MODEL.PRETRAINED
     state_dict_2d = None
     if pretrained2d:
         state_dict_2d = load_state_dict_from_url(model_urls[arch],
                                                  progress=True,
-                                                 map_location=kwargs.get('map_location', None))
+                                                 map_location=map_location)
+
+    type = cfg.MODEL.BACKBONE.TYPE
+    in_channels = cfg.MODEL.BACKBONE.IN_CHANNELS
+    spatial_strides = cfg.MODEL.BACKBONE.SPATIAL_STRIDES
+    temporal_strides = cfg.MODEL.BACKBONE.TEMPORAL_STRIDES
+    dilations = cfg.MODEL.BACKBONE.DILATIONS
+    conv1_kernel = cfg.MODEL.BACKBONE.CONV1_KERNEL
+    conv1_stride_t = cfg.MODEL.BACKBONE.CONV1_STRIDE_T
+    pool1_stride_t = cfg.MODEL.BACKBONE.POOL1_STRIDE_T
+    with_pool2 = cfg.MODEL.BACKBONE.WITH_POOL2
+    inflates = cfg.MODEL.BACKBONE.INFLATES
+    inflate_style = cfg.MODEL.BACKBONE.INFLATE_STYLE
     if type == 'C2D':
         model = ResNet3d(arch,
-                         in_channels=3,
-                         spatial_strides=(1, 2, 2, 2),
-                         temporal_strides=(1, 1, 1, 1),
-                         dilations=(1, 1, 1, 1),
-                         conv1_kernel=(1, 7, 7),
-                         conv1_stride_t=2,
-                         pool1_stride_t=2,
-                         with_pool2=True,
-                         inflates=(0, 0, 0, 0),
-                         inflate_style='3x1x1',
+                         in_channels=in_channels,
+                         spatial_strides=spatial_strides,
+                         temporal_strides=temporal_strides,
+                         dilations=dilations,
+                         conv1_kernel=conv1_kernel,
+                         conv1_stride_t=conv1_stride_t,
+                         pool1_stride_t=pool1_stride_t,
+                         with_pool2=with_pool2,
+                         inflates=inflates,
+                         inflate_style=inflate_style,
                          zero_init_residual=True,
-                         state_dict_2d=state_dict_2d,
-                         **kwargs)
+                         state_dict_2d=state_dict_2d)
     elif type == 'I3D_3x3x3':
         model = ResNet3d(arch,
                          in_channels=3,
@@ -62,8 +74,7 @@ def _resnet(arch, type, pretrained2d=False, **kwargs):
                          inflates=(1, 1, 1, 1),
                          inflate_style='3x3x3',
                          zero_init_residual=True,
-                         state_dict_2d=state_dict_2d,
-                         **kwargs)
+                         state_dict_2d=state_dict_2d)
     elif type == 'I3D_3x1x1':
         model = ResNet3d(arch,
                          in_channels=3,
@@ -77,8 +88,7 @@ def _resnet(arch, type, pretrained2d=False, **kwargs):
                          inflates=(1, 1, 1, 1),
                          inflate_style='3x1x1',
                          zero_init_residual=True,
-                         state_dict_2d=state_dict_2d,
-                         **kwargs)
+                         state_dict_2d=state_dict_2d)
     else:
         raise ValueError('no matching type')
     return model
@@ -95,8 +105,8 @@ def resnet3d_34(type='C2D', pretrained=False, **kwargs):
 
 
 @registry.BACKBONE.register('resnet3d_50')
-def resnet3d_50(type='C2D', pretrained=False, **kwargs):
-    return _resnet("resnet50", type, pretrained2d=pretrained, **kwargs)
+def resnet3d_50(cfg, map_location=None):
+    return _resnet("resnet50", cfg, map_location=None)
 
 
 @registry.BACKBONE.register('resnet3d_101')

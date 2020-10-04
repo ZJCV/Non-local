@@ -16,11 +16,7 @@ from tsn.model import registry
 
 def build_backbone(cfg, map_location=None):
     if '3d' in cfg.MODEL.BACKBONE.NAME:
-        return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME] \
-            (type=cfg.MODEL.BACKBONE.TYPE,
-             pretrained=cfg.MODEL.BACKBONE.TORCHVISION_PRETRAINED,
-             partial_bn=cfg.MODEL.BACKBONE.PARTIAL_BN,
-             map_location=map_location)
+        return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME](cfg, map_location=map_location)
     else:
         return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME] \
             (pretrained=cfg.MODEL.BACKBONE.TORCHVISION_PRETRAINED,
