@@ -95,7 +95,7 @@ def resnet3d_34(type='C2D', pretrained=False, **kwargs):
 
 
 @registry.BACKBONE.register('resnet3d_50')
-def resnet3d_50(type='C2D', pretrained=False, progress=True, **kwargs):
+def resnet3d_50(type='C2D', pretrained=False, **kwargs):
     return _resnet("resnet50", type, pretrained2d=pretrained, **kwargs)
 
 

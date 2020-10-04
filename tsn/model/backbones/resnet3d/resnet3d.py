@@ -277,7 +277,7 @@ class ResNet3d(nn.Module):
                 inflate_style=inflate_style,
                 norm_layer=norm_layer,
                 act_layer=act_layer,
-                **kwargs))
+            ))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(
@@ -290,8 +290,8 @@ class ResNet3d(nn.Module):
                     inflate=(inflate[i] == 1),
                     inflate_style=inflate_style,
                     norm_layer=norm_layer,
-                    act_layer=act_layer,
-                    **kwargs))
+                    act_layer=act_layer
+                ))
 
         return nn.Sequential(*layers)
 
