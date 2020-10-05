@@ -64,25 +64,25 @@ def _resnet(arch, cfg, map_location=None):
 
 
 @registry.BACKBONE.register('resnet3d_18')
-def resnet3d_18(type='C2D', pretrained=False, **kwargs):
-    return _resnet("resnet18", type, pretrained2d=pretrained, **kwargs)
+def resnet3d_18(cfg, map_location=None):
+    return _resnet("resnet18", cfg, map_location=map_location)
 
 
 @registry.BACKBONE.register('resnet3d_34')
-def resnet3d_34(type='C2D', pretrained=False, **kwargs):
-    return _resnet("resnet34", type, pretrained2d=pretrained, **kwargs)
+def resnet3d_34(cfg, map_location=None):
+    return _resnet("resnet34", cfg, map_location=map_location)
 
 
 @registry.BACKBONE.register('resnet3d_50')
 def resnet3d_50(cfg, map_location=None):
-    return _resnet("resnet50", cfg, map_location=None)
+    return _resnet("resnet50", cfg, map_location=map_location)
 
 
 @registry.BACKBONE.register('resnet3d_101')
-def resnet3d_101(type='C2D', pretrained=False, **kwargs):
-    return _resnet("resnet101", type, pretrained2d=pretrained, **kwargs)
+def resnet3d_101(cfg, map_location=None):
+    return _resnet("resnet101", cfg, map_location=map_location)
 
 
 @registry.BACKBONE.register('resnet3d_152')
-def resnet3d_152(type='C2D', pretrained=False, **kwargs):
-    return _resnet("resnet152", type, pretrained2d=pretrained, **kwargs)
+def resnet3d_152(cfg, map_location=None):
+    return _resnet("resnet152", cfg, map_location=map_location)

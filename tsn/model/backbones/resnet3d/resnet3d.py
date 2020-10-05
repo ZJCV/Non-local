@@ -311,7 +311,7 @@ class ResNet3d(nn.Module):
         self.relu = self.act_layer(inplace=True)
 
         self.maxpool = nn.MaxPool3d(
-            kernel_size=(1, 3, 3),
+            kernel_size=(2, 3, 3),
             stride=(pool1_stride_t, 2, 2),
             padding=(0, 1, 1))
 
