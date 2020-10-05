@@ -41,7 +41,7 @@ MODEL:
     WITH_POOL2: True
     INFLATES: (0, 0, 0, 0)
     INFLATE_STYLE: '3x1x1'
-    NON_LOCAL: (0, 0, 0, 0)
+    NON_LOCAL: ((0, 0, 0), (0, 1, 0, 1), (0, 1, 0, 1, 0, 1), (0, 0, 0))
   HEAD:
     NAME: 'NLHead'
     FEATURE_DIMS: 2048

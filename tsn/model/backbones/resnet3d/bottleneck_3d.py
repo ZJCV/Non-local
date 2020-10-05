@@ -9,6 +9,7 @@
 
 import torch.nn as nn
 from .utility import convTx1x1, convTx3x3
+from tsn.model.nonlocal_helper import Nonlocal3d
 
 
 class Bottleneck3d(nn.Module):
@@ -25,6 +26,8 @@ class Bottleneck3d(nn.Module):
         inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines the
             kernel sizes and padding strides for conv1 and conv2 in each block.
             Default: '3x1x1'.
+        non_local (bool): Determine whether to apply non-local module in this
+            block. Default: False.
         norm_layer (nn.Module): norm layers.
             Default: None.
         act_layer (nn.Module): activation layer.
@@ -41,6 +44,7 @@ class Bottleneck3d(nn.Module):
                  downsample=None,
                  inflate=True,
                  inflate_style='3x1x1',
+                 non_local=False,
                  norm_layer=None,
                  act_layer=None):
         super().__init__()
@@ -101,6 +105,10 @@ class Bottleneck3d(nn.Module):
         self.relu = self.act_layer(inplace=True)
         self.downsample = downsample
 
+        self.non_local = non_local
+        if self.non_local:
+            self.non_local_block = Nonlocal3d(planes * self.expansion, planes * self.expansion // 2)
+
     def forward(self, x):
         identity = x
 
@@ -120,5 +128,8 @@ class Bottleneck3d(nn.Module):
 
         out += identity
         out = self.relu(out)
+
+        if self.non_local:
+            out = self.non_local_block(out)
 
         return out

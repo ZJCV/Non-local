@@ -47,6 +47,7 @@ def _resnet(arch, cfg, map_location=None):
     with_pool2 = cfg.MODEL.BACKBONE.WITH_POOL2
     inflates = cfg.MODEL.BACKBONE.INFLATES
     inflate_style = cfg.MODEL.BACKBONE.INFLATE_STYLE
+    non_local = cfg.MODEL.BACKBONE.NON_LOCAL
     model = ResNet3d(arch,
                      in_channels=in_channels,
                      spatial_strides=spatial_strides,
@@ -58,6 +59,7 @@ def _resnet(arch, cfg, map_location=None):
                      with_pool2=with_pool2,
                      inflates=inflates,
                      inflate_style=inflate_style,
+                     non_local=non_local,
                      zero_init_residual=True,
                      state_dict_2d=state_dict_2d)
     return model

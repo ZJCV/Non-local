@@ -9,6 +9,7 @@
 
 import torch.nn as nn
 from .utility import convTx3x3
+from tsn.model.nonlocal_helper import Nonlocal3d
 
 
 class BasicBlock3d(nn.Module):
@@ -25,6 +26,8 @@ class BasicBlock3d(nn.Module):
         inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines the
             kernel sizes and padding strides for conv1 and conv2 in each block.
             Default: '3x1x1'.
+        non_local (bool): Determine whether to apply non-local module in this
+            block. Default: False.
         conv_layer (nn.Module): conv layer.
             Default: None.
         norm_layer (nn.Module): norm layers.
@@ -43,6 +46,7 @@ class BasicBlock3d(nn.Module):
                  downsample=None,
                  inflate=True,
                  inflate_style='3x1x1',
+                 non_local=False,
                  norm_layer=None,
                  act_layer=None):
         super().__init__()
@@ -84,14 +88,17 @@ class BasicBlock3d(nn.Module):
                                bias=False)
         self.bn1 = norm_layer(planes)
 
-        self.conv2 = convTx3x3(planes, planes, kernel_size=conv2_kernel_size,
+        self.conv2 = convTx3x3(planes, planes * self.expansion, kernel_size=conv2_kernel_size,
                                stride=(self.conv2_stride_t, self.conv2_stride_s, self.conv2_stride_s),
                                padding=conv2_padding,
                                dilation=(1, dilation, dilation),
                                bias=False)
-        self.bn2 = norm_layer(planes)
+        self.bn2 = norm_layer(planes * self.expansion)
 
         self.relu = self.act_layer(inplace=True)
+        self.non_local = non_local
+        if self.non_local:
+            self.non_local_block = Nonlocal3d(planes * self.expansion, planes * self.expansion // 2)
 
     def forward(self, x):
         identity = x
@@ -108,5 +115,8 @@ class BasicBlock3d(nn.Module):
 
         out += identity
         out = self.relu(out)
+
+        if self.non_local:
+            out = self.non_local_block(out)
 
         return out

@@ -16,3 +16,4 @@ def add_custom_config(_C):
     _C.MODEL.BACKBONE.WITH_POOL2 = True
     _C.MODEL.BACKBONE.INFLATES = (0, 0, 0, 0)
     _C.MODEL.BACKBONE.INFLATE_STYLE = '3x1x1'
+    _C.MODEL.BACKBONE.NON_LOCAL = (0, 0, 0, 0)

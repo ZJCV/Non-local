@@ -24,7 +24,7 @@ DATALOADER:
 MODEL:
   NAME: 'NL'
   PRETRAINED: ""
-  SYNC_BN: False
+  SYNC_BN: True
   INPUT_SIZE: (224, 224, 3)
   BACKBONE:
     NAME: 'resnet3d_50'
@@ -41,6 +41,7 @@ MODEL:
     WITH_POOL2: True
     INFLATES: ((1, 1, 1), (1, 0, 1, 0), (1, 0, 1, 0, 1, 0), (0, 1, 0))
     INFLATE_STYLE: '3x3x3'
+    NON_LOCAL: (0, 0, 0, 0)
   HEAD:
     NAME: 'NLHead'
     FEATURE_DIMS: 2048
@@ -65,6 +66,6 @@ LR_SCHEDULER:
     ITERATION: 400
     MULTIPLIER: 1.0
 TRAIN:
-  MAX_ITER: 100
+  MAX_ITER: 20000
 OUTPUT:
   DIR: 'outputs/i3d_3x3x3_r3d50_ucf101_rgb_224x224x32'

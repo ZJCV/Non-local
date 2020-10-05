@@ -41,6 +41,8 @@ class ResNet3d(nn.Module):
         inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines the
             kernel sizes and padding strides for conv1 and conv2 in each block.
             Default: '3x1x1'.
+        non_local (Sequence[int]): Determine whether to apply non-local module
+            in the corresponding block of each stages. Default: (0, 0, 0, 0).
         norm_layer (nn.Module): norm layers.
             Default: None.
         act_layer (nn.Module): activation layer.
@@ -75,6 +77,7 @@ class ResNet3d(nn.Module):
                  with_pool2=True,
                  inflates=(0, 0, 0, 0),
                  inflate_style='3x1x1',
+                 non_local=(0, 0, 0, 0),
                  norm_layer=None,
                  act_layer=None,
                  zero_init_residual=True,
@@ -111,6 +114,7 @@ class ResNet3d(nn.Module):
                                             dilation=dilations[i],
                                             inflate=inflates[i],
                                             inflate_style=inflate_style,
+                                            non_local=non_local[i],
                                             norm_layer=self.norm_layer,
                                             act_layer=self.act_layer,
                                             **kwargs
@@ -130,7 +134,15 @@ class ResNet3d(nn.Module):
             if isinstance(m, nn.Conv3d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, (nn.BatchNorm3d, nn.GroupNorm)):
-                nn.init.constant_(m.weight, 1)
+                if (
+                        hasattr(m, "transform_final_bn")
+                        and m.transform_final_bn
+                ):
+                    batchnorm_weight = 0.0
+                else:
+                    batchnorm_weight = 1.0
+
+                nn.init.constant_(m.weight, batchnorm_weight)
                 nn.init.constant_(m.bias, 0)
 
         # Zero-initialize the last BN in each residual branch,
@@ -221,6 +233,7 @@ class ResNet3d(nn.Module):
                        dilation=1,
                        inflate=1,
                        inflate_style='3x1x1',
+                       non_local=0,
                        norm_layer=None,
                        act_layer=None,
                        **kwargs):
@@ -241,6 +254,9 @@ class ResNet3d(nn.Module):
             inflate_style (str): ``3x1x1`` or ``1x1x1``. which determines
                 the kernel sizes and padding strides for conv1 and conv2
                 in each block. Default: '3x1x1'.
+            non_local (int | Sequence[int]): Determine whether to apply
+                non-local module in the corresponding block of each stages.
+                Default: 0.
             norm_layer (nn.Module): norm layers.
                 Default: None.
             act_layer (nn.Module): activation layer.
@@ -249,6 +265,8 @@ class ResNet3d(nn.Module):
             nn.Module: A residual layer for the given config.
         """
         inflate = inflate if not isinstance(inflate, int) else (inflate,) * blocks
+        non_local = non_local if not isinstance(non_local, int) else (non_local,) * blocks
+        assert len(inflate) == blocks and len(non_local) == blocks
 
         downsample = None
         if spatial_stride != 1 or self.inplanes != planes * block.expansion:
@@ -275,6 +293,7 @@ class ResNet3d(nn.Module):
                 downsample=downsample,
                 inflate=(inflate[0] == 1),
                 inflate_style=inflate_style,
+                non_local=(non_local[0] == 1),
                 norm_layer=norm_layer,
                 act_layer=act_layer,
             ))
@@ -289,6 +308,7 @@ class ResNet3d(nn.Module):
                     dilation=dilation,
                     inflate=(inflate[i] == 1),
                     inflate_style=inflate_style,
+                    non_local=(non_local[i] == 1),
                     norm_layer=norm_layer,
                     act_layer=act_layer
                 ))
