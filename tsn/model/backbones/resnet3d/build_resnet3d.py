@@ -29,7 +29,7 @@ model_urls = {
 
 
 def _resnet(arch, cfg, map_location=None):
-    pretrained2d = cfg.MODEL.PRETRAINED
+    pretrained2d = cfg.MODEL.BACKBONE.TORCHVISION_PRETRAINED
     state_dict_2d = None
     if pretrained2d:
         state_dict_2d = load_state_dict_from_url(model_urls[arch],
