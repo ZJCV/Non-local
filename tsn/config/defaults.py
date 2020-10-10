@@ -7,7 +7,10 @@ _C = CN()
 # ---------------------------------------------------------------------------- #
 _C.DATASETS = CN()
 _C.DATASETS.MODALITY = 'RGB'
-_C.DATASETS.NUM_SEGS = 3
+_C.DATASETS.SAMPLE_STRATEGY = 'SegSample'
+_C.DATASETS.CLIP_LEN = 1
+_C.DATASETS.FRAME_INTERVAL = 1
+_C.DATASETS.NUM_CLIPS = 3
 # train
 _C.DATASETS.TRAIN = CN()
 _C.DATASETS.TRAIN.NAME = 'HMDB51'
@@ -27,12 +30,14 @@ _C.DATASETS.TEST.SPLIT = 1
 # Transform
 # ---------------------------------------------------------------------------- #
 _C.TRANSFORM = CN()
-# HxWxC
 _C.TRANSFORM.JITTER_SCALES = (256, 320)
 _C.TRANSFORM.TRAIN_CROP_SIZE = 224
 _C.TRANSFORM.TEST_CROP_SIZE = 256
 _C.TRANSFORM.MEAN = (0.485, 0.456, 0.406)  # (0.5, 0.5, 0.5)
 _C.TRANSFORM.STD = (0.229, 0.224, 0.225)  # (0.5, 0.5, 0.5)
+_C.TRANSFORM.RANDOM_ROTATION = 10
+# (brightness, contrast, saturation, hue)
+_C.TRANSFORM.COLOR_JITTER = (0.1, 0.1, 0.1, 0.1)
 
 # ---------------------------------------------------------------------------- #
 # DataLoader

@@ -7,8 +7,6 @@
 @description: 
 """
 
-import torch.nn as nn
-
 from .resnet.build_resnet import resnet50
 from .resnet3d.build_resnet3d import resnet3d_50
 from tsn.model import registry
