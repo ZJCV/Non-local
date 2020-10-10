@@ -18,5 +18,6 @@ def build_backbone(cfg, map_location=None):
     else:
         return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME] \
             (pretrained=cfg.MODEL.BACKBONE.TORCHVISION_PRETRAINED,
+             zero_init_residual=cfg.MODEL.BACKBONE.ZERO_INIT_RESIDUAL,
              partial_bn=cfg.MODEL.BACKBONE.PARTIAL_BN,
              map_location=map_location)

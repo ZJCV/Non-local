@@ -35,6 +35,7 @@ MODEL:
     NAME: 'resnet3d_50'
     PARTIAL_BN: False
     TORCHVISION_PRETRAINED: True
+    ZERO_INIT_RESIDUAL: True
     TYPE: 'I3D_3x3x3'
     IN_CHANNELS: 3
     SPATIAL_STRIDES: (1, 2, 2, 2)
@@ -59,7 +60,7 @@ MODEL:
     NAME: 'crossentropy'
 OPTIMIZER:
   NAME: 'sgd'
-  LR: 2e-3
+  LR: 1e-2
   WEIGHT_DECAY: 3e-4
   SGD:
     MOMENTUM: 0.9
