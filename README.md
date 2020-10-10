@@ -16,7 +16,7 @@
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg"></a>
 </p>
 
-
+其`CodeBase`来自于[ZJCV/TSN](https://github.com/ZJCV/TSN)
 
 ## 内容列表
 
@@ -50,6 +50,27 @@ $ pip install -r requirements.txt
 ```
 $ export CUDA_VISIBLE_DEVICES=1
 $ export PYTHONPATH=.
+```
+
+* 训练
+
+```
+# 训练UCF101
+# 单GPU
+$ python tools/train.py --config_file=configs/i3d-3x3-nl_r3d50_ucf101_rgb_224x32_dense.yaml
+# 多GPU
+$ python tools/train.py \
+--config_file=configs/i3d-3x3-nl_r3d50_ucf101_rgb_224x32_dense.yaml \
+--eval_step=1000 \
+--save_step=1000 \
+-g=<N>
+```
+
+* 测试
+
+```
+$ python tools/test.py <config_file> <pth_file>
+$ python tools/test.py configs/i3d-3x3-nl_r3d50_ucf101_rgb_224x32_dense.yaml outputs/i3d-3x3-nl_r3d50_ucf101_rgb_224x32_dense.pth
 ```
 
 ## 主要维护人员
