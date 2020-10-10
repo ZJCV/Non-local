@@ -13,9 +13,9 @@ from tsn.model.backbones.resnet3d.build_resnet3d import resnet3d_50
 from tsn.config import cfg
 
 if __name__ == '__main__':
-    # cfg.merge_from_file('configs/c2d_nl_r3d50_ucf101_rgb_224x224x32.yaml')
-    # cfg.merge_from_file('configs/c2d_r3d50_ucf101_rgb_224x224x32.yaml')
-    cfg.merge_from_file('configs/i3d_nl_3x1x1_r3d50_ucf101_rgb_224x224x32.yaml')
+    # cfg.merge_from_file('configs/c2d-nl_r3d50_ucf101_rgb_224x32_dense.yaml')
+    # cfg.merge_from_file('configs/c2d_r3d50_ucf101_rgb_224x32_dense.yaml')
+    cfg.merge_from_file('configs/i3d-3x1-nl_r3d50_ucf101_rgb_224x32_dense.yaml')
     cfg.freeze()
 
     model = resnet3d_50(cfg)
