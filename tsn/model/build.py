@@ -14,6 +14,7 @@ import tsn.util.distributed as du
 from tsn.util.checkpoint import CheckPointer
 from . import registry
 from .recognizers.tsn_recognizer import TSNRecognizer
+from .recognizers.nl_recognizer import NLRecognizer
 from .criterions.crossentropy import build_crossentropy
 
 
