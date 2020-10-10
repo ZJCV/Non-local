@@ -73,6 +73,6 @@ LR_SCHEDULER:
     ITERATION: 1000
     MULTIPLIER: 1.0
 TRAIN:
-  MAX_ITER: 100
+  MAX_ITER: 50000
 OUTPUT:
   DIR: 'outputs/c2d-nl_r3d50_ucf101_rgb_224x32_dense'
