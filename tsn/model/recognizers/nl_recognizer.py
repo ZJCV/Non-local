@@ -29,6 +29,6 @@ class NLRecognizer(nn.Module):
         N, C, T, H, W = imgs.shape[:5]
 
         features = self.backbone(imgs)
-        outputs = self.head(features)
+        probs = self.head(features)
 
-        return outputs
+        return {'probs': probs}

@@ -8,8 +8,11 @@
 """
 
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.distributed as dist
+
+from tsn.util import logging
 
 
 def simple_group_split(world_size, rank, num_groups):
@@ -22,17 +25,19 @@ def simple_group_split(world_size, rank, num_groups):
     for i in range(num_groups):
         groups.append(dist.new_group(rank_list[i]))
     group_size = world_size // num_groups
-    print("Rank no.{} start sync BN on the process group of {}".format(rank, rank_list[rank // group_size]))
+
+    logger = logging.setup_logging(__name__)
+    logger.info(
+        "Rank no.{} start sync BN on the process group of {}".format(rank, rank_list[rank // group_size]))
     return groups[rank // group_size]
 
 
-def convert_sync_bn(model, process_group, gpu=None):
+def convert_sync_bn(model, process_group, device):
     # convert all BN layers in the model to syncBN
     for _, (child_name, child) in enumerate(model.named_children()):
         if isinstance(child, nn.modules.batchnorm._BatchNorm):
             m = nn.SyncBatchNorm.convert_sync_batchnorm(child, process_group)
-            if (gpu is not None):
-                m = m.cuda(gpu)
+            m = m.to(device=device)
             setattr(model, child_name, m)
         else:
-            convert_sync_bn(child, process_group, gpu)
+            convert_sync_bn(child, process_group, device)
