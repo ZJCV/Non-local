@@ -1,5 +1,5 @@
-./demo/videos/
-./demo/results/
+demo/videos/
+demo/results/
 .idea/
-./outputs/
+outputs/
 *.pyc
