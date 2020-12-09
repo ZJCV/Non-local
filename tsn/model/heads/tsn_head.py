@@ -10,7 +10,7 @@
 import torch
 import torch.nn as nn
 
-from tsn.model import registry
+from .. import registry
 
 
 @registry.HEAD.register('TSNHead')
@@ -26,6 +26,12 @@ class TSNHead(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(in_channels, num_classes)
         self.dropout = nn.Dropout(p=dropout_rate)
+
+        self._init_weights()
+
+    def _init_weights(self):
+        nn.init.normal_(self.fc.weight, 0, 0.01)
+        nn.init.zeros_(self.fc.bias)
 
     def forward(self, x):
         x = self.avgpool(x)

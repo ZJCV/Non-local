@@ -15,6 +15,8 @@ from .video import video_container as container
 from .video import decoder
 from tsn.util import logging
 
+logger = logging.get_logger(__name__)
+
 classes = ['brush_hair', 'cartwheel', 'catch', 'chew', 'clap', 'climb',
            'climb_stairs', 'dive', 'draw_sword', 'dribble', 'drink', 'eat',
            'fall_floor', 'fencing', 'flic_flac', 'golf', 'handstand', 'hit',
@@ -46,7 +48,7 @@ class HMDB51(BaseDataset):
         self._update_evaluator()
 
     def _update_video(self, annotation_dir, is_train=True):
-        dataset_type = 'rawframes' if self.type == 'RawFrame' else 'videos'
+        dataset_type = 'rawframes' if self.type == 'RawFrame' else 'Video'
         if is_train:
             annotation_path = os.path.join(annotation_dir, f'hmdb51_train_split_{self.split}_{dataset_type}.txt')
         else:
@@ -72,7 +74,7 @@ class HMDB51(BaseDataset):
                         self.decoding_backend,
                     )
                 except Exception as e:
-                    logger = logging.setup_logging(__name__)
+
                     logger.info(
                         "Failed to load video from {} with error {}".format(
                             video_path, e

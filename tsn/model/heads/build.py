@@ -7,10 +7,8 @@
 @description: 
 """
 
-from tsn.model import registry
-
+from .. import registry
 from .tsn_head import TSNHead
-from .nl_head import NLHead
 
 
 def build_head(cfg):

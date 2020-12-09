@@ -7,19 +7,12 @@
 @description: 
 """
 
-import torch.nn as nn
+from tsn.util.distributed import get_device, get_local_rank
 
-from .resnet.build_resnet import resnet50
-from .resnet3d.build_resnet3d import resnet3d_50
-from tsn.model import registry
+from .. import registry
+from .build_resnet_backbone import build_resnet_backbone
 
 
-def build_backbone(cfg, map_location=None):
-    if '3d' in cfg.MODEL.BACKBONE.NAME:
-        return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME](cfg, map_location=map_location)
-    else:
-        return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME] \
-            (pretrained=cfg.MODEL.BACKBONE.TORCHVISION_PRETRAINED,
-             zero_init_residual=cfg.MODEL.BACKBONE.ZERO_INIT_RESIDUAL,
-             partial_bn=cfg.MODEL.BACKBONE.PARTIAL_BN,
-             map_location=map_location)
+def build_backbone(cfg):
+    device = get_device(local_rank=get_local_rank())
+    return registry.BACKBONE[cfg.MODEL.BACKBONE.NAME](cfg, map_location=device)

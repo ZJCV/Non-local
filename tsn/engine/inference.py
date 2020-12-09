@@ -16,6 +16,8 @@ import tsn.util.logging as logging
 from tsn.util.distributed import all_gather, is_master_proc
 from tsn.data.build import build_dataloader
 
+logger = logging.get_logger(__name__)
+
 
 @torch.no_grad()
 def compute_on_dataset(images, targets, device, model, num_gpus, evaluator):
@@ -38,7 +40,7 @@ def compute_on_dataset(images, targets, device, model, num_gpus, evaluator):
 
 
 def inference(cfg, model, device, **kwargs):
-    iteration = kwargs.get('iteration', None)
+    cur_epoch = kwargs.get('cur_epoch', None)
     dataset_name = cfg.DATASETS.TEST.NAME
     num_gpus = cfg.NUM_GPUS
 
@@ -47,7 +49,6 @@ def inference(cfg, model, device, **kwargs):
     evaluator = data_loader.dataset.evaluator
     evaluator.clean()
 
-    logger = logging.setup_logging(__name__)
     logger.info("Evaluating {} dataset({} video clips):".format(dataset_name, len(dataset)))
 
     if is_master_proc():
@@ -64,7 +65,7 @@ def inference(cfg, model, device, **kwargs):
         output_dir = cfg.OUTPUT_DIR
         result_path = os.path.join(output_dir,
                                    'result_{}.txt'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))) \
-            if iteration is None else os.path.join(output_dir, 'result_{:07d}.txt'.format(iteration))
+            if cur_epoch is None else os.path.join(output_dir, 'result_{:04d}.txt'.format(cur_epoch))
 
         with open(result_path, "w") as f:
             f.write(result_str)
