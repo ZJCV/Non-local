@@ -16,7 +16,7 @@
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg"></a>
 </p>
 
-其`CodeBase`来自于[ZJCV/TSN](https://github.com/ZJCV/TSN)
+* `CodeBase`：[ZJCV/TSN](https://github.com/ZJCV/TSN)
 
 ## 内容列表
 
