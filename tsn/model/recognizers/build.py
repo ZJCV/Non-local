@@ -15,6 +15,7 @@ from tsn.util.checkpoint import CheckPointer
 from tsn.util import logging
 from .. import registry
 from .tsn_recognizer import TSNRecognizer
+from .resnet3d_recognizer import ResNet3DRecognizer
 
 logger = logging.get_logger(__name__)
 

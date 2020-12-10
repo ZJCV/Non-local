@@ -11,6 +11,7 @@ from tsn.util.distributed import get_device, get_local_rank
 
 from .. import registry
 from .build_resnet_backbone import build_resnet_backbone
+from .build_resnet3d_backbone import build_resnet3d_backbone
 
 
 def build_backbone(cfg):
