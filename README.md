@@ -82,6 +82,26 @@ $ python tools/test.py configs/i3d-3x3-nl_r3d50_ucf101_rgb_224x32_dense.yaml out
 * [ facebookresearch/SlowFast](https://github.com/facebookresearch/SlowFast)
 * [open-mmlab/mmaction2](https://github.com/open-mmlab/mmaction2)
 
+```
+@misc{fan2020pyslowfast,
+  author =       {Haoqi Fan and Yanghao Li and Bo Xiong and Wan-Yen Lo and
+                  Christoph Feichtenhofer},
+  title =        {PySlowFast},
+  howpublished = {\url{https://github.com/facebookresearch/slowfast}},
+  year =         {2020}
+}
+
+
+@misc{wang2018nonlocal,
+      title={Non-local Neural Networks}, 
+      author={Xiaolong Wang and Ross Girshick and Abhinav Gupta and Kaiming He},
+      year={2018},
+      eprint={1711.07971},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
+
 ## 参与贡献方式
 
 欢迎任何人的参与！打开[issue](https://github.com/ZJCV/Non-local/issues)或提交合并请求。
